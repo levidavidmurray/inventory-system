@@ -3,6 +3,8 @@
 class_name InventoryInteractor
 extends NodeInventorySystemBase
 
+enum INPUT_EVENT { PRESSED, RELEASED }
+
 signal preview_interacted(actions : Array[InteractAction], position_screen : Vector2)
 signal clear_preview
 signal interacted(object : Node)
@@ -25,6 +27,9 @@ func try_interact():
 	var pos : Vector2 = Vector2.ZERO
 	if object != null and object.has_method("get_interaction_position") and camera_3d != null:
 		pos = camera_3d.unproject_position(object.get_interaction_position(raycast.get_collision_point()))
+
+	var hand_actions = get_hand_actions(actual_hand_object)
+	interact_hand_item(actual_hand_object, hand_actions)
 	
 	if not raycast.is_colliding():
 		clear_preview.emit()
@@ -35,14 +40,10 @@ func try_interact():
 #		clear_preview.emit()
 	
 	var actions = get_actions(node)
-	var hand_actions = get_hand_actions(actual_hand_object)
-	var total_actions : Array[InteractAction] = []
-	total_actions.append_array(actions)
-	total_actions.append_array(hand_actions)
-	preview_interacted.emit(total_actions, pos)
-	
+	# total_actions.append_array(hand_actions)
+	preview_interacted.emit(actions, pos)
+
 	interact_object(object, actions)
-	interact_hand_item(actual_hand_object, hand_actions)
 
 
 func get_actions(node : Node) -> Array[InteractAction]:
@@ -68,6 +69,9 @@ func interact_object(object : Node, actions : Array[InteractAction]):
 
 func interact_hand_item(hand_object, hand_actions):
 	for action in hand_actions:
-		if Input.is_action_just_pressed(action.input):
+		if Input.is_action_just_pressed(action.input) and action.input_event == INPUT_EVENT.PRESSED:
+			hand_object.interact(self, action.code)
+			return
+		elif Input.is_action_just_released(action.input) and action.input_event == INPUT_EVENT.RELEASED:
 			hand_object.interact(self, action.code)
 			return
