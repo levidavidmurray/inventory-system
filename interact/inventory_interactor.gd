@@ -23,6 +23,8 @@ var actual_hand_object : Node
 ## 🫴 Interact System
 func try_interact():
 	var object = raycast.get_collider()
+	if object != null and not object.has_method("get_interaction_position"):
+		object = object.get_parent()
 	last_interact_object = object
 	var pos : Vector2 = Vector2.ZERO
 	if object != null and object.has_method("get_interaction_position") and camera_3d != null:
@@ -30,7 +32,7 @@ func try_interact():
 
 	var hand_actions = get_hand_actions(actual_hand_object)
 	interact_hand_item(actual_hand_object, hand_actions)
-	
+
 	if not raycast.is_colliding():
 		clear_preview.emit()
 		return

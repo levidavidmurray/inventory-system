@@ -290,8 +290,8 @@ func drop_transaction():
 func _instantiate_dropped_item(dropped_item : PackedScene):
 	var obj = dropped_item.instantiate()
 	drop_parent.add_child(obj)
-	obj.position = drop_parent_position.position
-	obj.rotation = drop_parent_position.rotation
+	obj.position = drop_parent_position.global_position
+	obj.rotation = drop_parent_position.global_rotation
 	dropped.emit(obj)
 
 

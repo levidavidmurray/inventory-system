@@ -1,5 +1,5 @@
 @icon("res://addons/inventory-system/icons/dropped_item_3d.svg")
-extends Node3D
+extends RigidBody3D
 class_name DroppedItem3D
 
 @export var item : InventoryItem
