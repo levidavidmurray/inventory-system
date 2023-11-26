@@ -1,19 +1,23 @@
 class_name InteractorUI
 extends Control
 
-@export var interact_messages : Array[ActionMessageUI]
-@onready var interact_position : Control = $InteractPosition
-var default_interact_message_position : Vector2
-@export var interactor : InventoryInteractor
-@export var input_icons : InputIcons
+@export var interact_messages: Array[ActionMessageUI]
+@onready var interact_position: Control = $InteractPosition
+var default_interact_message_position: Vector2
+@export var interactor: InventoryInteractor
+@export var input_icons: InputIcons
 
 var interact_object
 var interact_hand_object
 
-func setup(interactor : InventoryInteractor):
-	if self.interactor != null:
+
+func setup(interactor: InventoryInteractor):
+	if (
+		self.interactor != null
+		and interactor.preview_interacted.is_connected(_on_preview_interacted.bind())
+	):
 		interactor.preview_interacted.disconnect(_on_preview_interacted.bind())
-		interactor.clear_preview.connect(_on_interactor_clear_preview.bind())
+		interactor.clear_preview.disconnect(_on_interactor_clear_preview.bind())
 	self.interactor = interactor
 	interactor.preview_interacted.connect(_on_preview_interacted.bind())
 	interactor.clear_preview.connect(_on_interactor_clear_preview.bind())
@@ -25,7 +29,7 @@ func _ready():
 	default_interact_message_position = interact_position.position
 
 
-func _on_preview_interacted(actions : Array[InteractAction], position_on_screen : Vector2):
+func _on_preview_interacted(actions: Array[InteractAction], position_on_screen: Vector2):
 	preview_interact(actions, position_on_screen)
 
 
@@ -34,7 +38,7 @@ func _on_interactor_clear_preview():
 		i.hide_message()
 
 
-func preview_interact(actions : Array[InteractAction], position_on_screen : Vector2):
+func preview_interact(actions: Array[InteractAction], position_on_screen: Vector2):
 	for i in interact_messages:
 		i.visible = true
 	if position_on_screen == Vector2.ZERO:
@@ -49,4 +53,3 @@ func preview_interact(actions : Array[InteractAction], position_on_screen : Vect
 			interact_message.show_message(actions[i].input, actions[i].description)
 		else:
 			interact_message.hide_message()
-		
