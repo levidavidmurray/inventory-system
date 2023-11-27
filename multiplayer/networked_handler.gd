@@ -291,8 +291,8 @@ func _instantiate_dropped_item(dropped_item: PackedScene):
 	var spawner = get_node("../../../DroppedItemSpawner")
 	var obj = spawner.spawn(
 		[
-			get_parent().get_parent().position,
-			get_parent().get_parent().rotation,
+			drop_parent_position.global_position,
+			drop_parent_position.global_rotation,
 			dropped_item.resource_path
 		]
 	)
