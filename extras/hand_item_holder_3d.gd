@@ -1,7 +1,7 @@
 extends Node3D
 class_name HandItemHolder3D
 
-signal hand_item_created(item: HandItem)
+signal hand_item_changed(item: HandItem)
 
 @export_node_path("Node3D") var default_hand_item_object_path = NodePath("DefaultHandItem")
 @export_node_path("Hotbar") var hotbar_path = NodePath("../../CharacterInventorySystem/Hotbar")
@@ -44,8 +44,8 @@ func _on_change_selection(new_index: int):
 		hand_item_obj.interactor = interactor
 		add_child(hand_item_obj)
 		objects_per_id[item] = hand_item_obj
-		hand_item_created.emit(hand_item_obj)
 	interactor.actual_hand_object = objects_per_id[item]
+	hand_item_changed.emit(objects_per_id[item])
 
 
 func _clear_last_selection():
