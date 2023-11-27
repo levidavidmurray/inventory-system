@@ -2,9 +2,10 @@
 extends InventoryHandler
 class_name NetworkedHandler
 
-## Network version of the InventoryHandler, the main inventory handler calls are 
-## intercepted by this script to propagate rpc calls to the server and later if 
+## Network version of the InventoryHandler, the main inventory handler calls are
+## intercepted by this script to propagate rpc calls to the server and later if
 ## necessary make response rpc calls to the client.
+
 
 func _ready():
 	super._ready()
@@ -15,7 +16,8 @@ func _ready():
 ## === OVERRIDE MAIN COMMANDS ===
 ## Override all main commands for the client to send to the server through rpc
 
-func drop(item : InventoryItem, amount := 1) -> bool:
+
+func drop(item: InventoryItem, amount := 1) -> bool:
 	var item_id = item.id
 	if item_id < InventoryItem.NONE:
 		return false
@@ -32,6 +34,14 @@ func pick_to_inventory(dropped_item, inventory := self.inventories[0]):
 	else:
 		pick_to_inventory_rpc(dropped_item.get_path(), inventory.get_path())
 
+
+func drop_from_inventory(slot_index: int, amount := 1, inventory := self.inventories[0]):
+	if not multiplayer.is_server():
+		drop_from_inventory_rpc.rpc_id(1, slot_index, amount, inventory.get_path())
+	else:
+		drop_from_inventory_rpc(slot_index, amount, inventory.get_path())
+
+
 # TODO Make Networked Function
 #func move_between_inventories(from : Inventory, slot_index : int, amount : int, to : Inventory) -> int:
 #	if not multiplayer.is_server():
@@ -40,11 +50,17 @@ func pick_to_inventory(dropped_item, inventory := self.inventories[0]):
 #		move_between_inventories_rpc(from.get_path(), slot_index, amount, to.get_path())
 
 
-func move_between_inventories_at(from : Inventory, slot_index : int, amount : int, to : Inventory, to_slot_index : int):
+func move_between_inventories_at(
+	from: Inventory, slot_index: int, amount: int, to: Inventory, to_slot_index: int
+):
 	if not multiplayer.is_server():
-		move_between_inventories_at_rpc.rpc_id(1, from.get_path(), slot_index, amount, to.get_path(), to_slot_index)
+		move_between_inventories_at_rpc.rpc_id(
+			1, from.get_path(), slot_index, amount, to.get_path(), to_slot_index
+		)
 	else:
-		move_between_inventories_at_rpc(from.get_path(), slot_index, amount, to.get_path(), to_slot_index)
+		move_between_inventories_at_rpc(
+			from.get_path(), slot_index, amount, to.get_path(), to_slot_index
+		)
 
 
 func drop_transaction():
@@ -54,7 +70,7 @@ func drop_transaction():
 		drop_transaction_rpc()
 
 
-func open(inventory : Inventory) -> bool:
+func open(inventory: Inventory) -> bool:
 	if not multiplayer.is_server():
 		open_rpc.rpc_id(1, inventory.get_path())
 		opened.emit(inventory)
@@ -63,7 +79,7 @@ func open(inventory : Inventory) -> bool:
 	return true
 
 
-func close(inventory : Inventory) -> bool:
+func close(inventory: Inventory) -> bool:
 	if not multiplayer.is_server():
 		close_rpc.rpc_id(1, inventory.get_path())
 	else:
@@ -79,32 +95,31 @@ func close_all_inventories():
 	return true
 
 
-func to_transaction(slot_index : int , inventory : Inventory, amount : int):
+func to_transaction(slot_index: int, inventory: Inventory, amount: int):
 	if not multiplayer.is_server():
 		to_transaction_rpc.rpc_id(1, slot_index, inventory.get_path(), amount)
 	else:
 		to_transaction_rpc(slot_index, inventory.get_path(), amount)
 
 
-func transaction_to_at(slot_index : int, inventory : Inventory, amount_to_move : int = -1):
+func transaction_to_at(slot_index: int, inventory: Inventory, amount_to_move: int = -1):
 	if not multiplayer.is_server():
 		transaction_to_at_rpc.rpc_id(1, slot_index, inventory.get_path(), amount_to_move)
 	else:
 		transaction_to_at_rpc(slot_index, inventory.get_path(), amount_to_move)
 
 
-func transaction_to(inventory : Inventory):
+func transaction_to(inventory: Inventory):
 	if not multiplayer.is_server():
 		transaction_to_rpc.rpc_id(1, inventory.get_path())
 	else:
 		transaction_to_rpc(inventory.get_path())
 
 
-
 ## === CLIENT COMMANDS TO SERVER ===
 
 @rpc("any_peer")
-func drop_rpc(item_id : int, amount : int):
+func drop_rpc(item_id: int, amount: int):
 	if not multiplayer.is_server():
 		return
 	var item = get_item_from_id(item_id)
@@ -114,7 +129,7 @@ func drop_rpc(item_id : int, amount : int):
 
 
 @rpc("any_peer")
-func add_to_inventory_rpc(object_path : NodePath, item_id : int, amount := 1, drop_excess := false):
+func add_to_inventory_rpc(object_path: NodePath, item_id: int, amount := 1, drop_excess := false):
 	if not multiplayer.is_server():
 		return
 	var item = get_item_from_id(item_id)
@@ -130,7 +145,17 @@ func add_to_inventory_rpc(object_path : NodePath, item_id : int, amount := 1, dr
 
 
 @rpc("any_peer")
-func pick_to_inventory_rpc(pick_object_path : NodePath, object_path : NodePath):
+func drop_from_inventory_rpc(slot_index: int, amount: int, inventory_path: NodePath):
+	if not multiplayer.is_server():
+		return
+	var inventory = get_node(inventory_path) as Inventory
+	if inventory == null:
+		return
+	super.drop_from_inventory(slot_index, amount, inventory)
+
+
+@rpc("any_peer")
+func pick_to_inventory_rpc(pick_object_path: NodePath, object_path: NodePath):
 	if not multiplayer.is_server():
 		return
 	var pick_object = get_node(pick_object_path)
@@ -146,7 +171,9 @@ func pick_to_inventory_rpc(pick_object_path : NodePath, object_path : NodePath):
 
 
 @rpc("any_peer")
-func move_between_inventories_at_rpc(from_path : NodePath, slot_index : int, amount : int, to_path : NodePath, to_slot_index : int):
+func move_between_inventories_at_rpc(
+	from_path: NodePath, slot_index: int, amount: int, to_path: NodePath, to_slot_index: int
+):
 	if not multiplayer.is_server():
 		return
 	var from_obj = get_node(from_path)
@@ -172,7 +199,7 @@ func drop_transaction_rpc():
 
 
 @rpc("any_peer")
-func open_rpc(object_path : NodePath):
+func open_rpc(object_path: NodePath):
 	if not multiplayer.is_server():
 		return
 	var object = get_node(object_path)
@@ -185,7 +212,7 @@ func open_rpc(object_path : NodePath):
 
 
 @rpc("any_peer")
-func close_rpc(object_path : NodePath):
+func close_rpc(object_path: NodePath):
 	if not multiplayer.is_server():
 		return
 	var object = get_node(object_path)
@@ -198,7 +225,7 @@ func close_rpc(object_path : NodePath):
 
 
 @rpc("any_peer")
-func to_transaction_rpc(slot_index : int, object_path : NodePath, amount : int):
+func to_transaction_rpc(slot_index: int, object_path: NodePath, amount: int):
 	if not multiplayer.is_server():
 		return
 	var object = get_node(object_path)
@@ -211,7 +238,7 @@ func to_transaction_rpc(slot_index : int, object_path : NodePath, amount : int):
 
 
 @rpc("any_peer")
-func transaction_to_at_rpc(slot_index : int, object_path : NodePath, amount_to_move : int):
+func transaction_to_at_rpc(slot_index: int, object_path: NodePath, amount_to_move: int):
 	if not multiplayer.is_server():
 		return
 	var object = get_node(object_path)
@@ -224,7 +251,7 @@ func transaction_to_at_rpc(slot_index : int, object_path : NodePath, amount_to_m
 
 
 @rpc("any_peer")
-func transaction_to_rpc(object_path : NodePath):
+func transaction_to_rpc(object_path: NodePath):
 	if not multiplayer.is_server():
 		return
 	var object = get_node(object_path)
@@ -244,6 +271,7 @@ func close_all_inventories_rpc():
 ## === LOCAL INVENTORY CALLS ===
 ## Calling the main inventory can be local, avoiding a new network rpc call
 
+
 # Returns [code]true[/code] if main [Inventory] is open.
 func is_open_main_inventory() -> bool:
 	return super.is_open(inventories[0])
@@ -259,14 +287,20 @@ func close_main_inventory() -> bool:
 	return super.close(inventories[0])
 
 
-func _instantiate_dropped_item(dropped_item : PackedScene):
+func _instantiate_dropped_item(dropped_item: PackedScene):
 	var spawner = get_node("../../../DroppedItemSpawner")
-	var obj = spawner.spawn([get_parent().get_parent().position, get_parent().get_parent().rotation, dropped_item.resource_path])
+	var obj = spawner.spawn(
+		[
+			get_parent().get_parent().position,
+			get_parent().get_parent().rotation,
+			dropped_item.resource_path
+		]
+	)
 	dropped.emit(obj)
 
 
 func _on_updated_transaction_slot():
-	var item_id : int
+	var item_id: int
 	if transaction_slot.has_valid():
 		item_id = InventoryItem.NONE
 	else:
@@ -275,6 +309,6 @@ func _on_updated_transaction_slot():
 
 
 @rpc
-func _on_updated_transaction_slot_rpc(item_id : int, amount : int):
+func _on_updated_transaction_slot_rpc(item_id: int, amount: int):
 	var item = database.get_item(item_id)
 	_set_transaction_slot(item, amount)
