@@ -102,7 +102,7 @@ func _update_opened_stations(_craft_station : CraftStation):
 
 
 func inventory_inputs():
-	if Input.is_action_just_released(toggle_inventory_input):
+	if Input.is_action_just_pressed(toggle_inventory_input):
 		if inventory_handler.is_open_main_inventory():
 			inventory_handler.close_main_inventory()
 			inventory_handler.close_all_inventories()
@@ -116,7 +116,7 @@ func inventory_inputs():
 		if crafter.is_open_any_station():
 			crafter.close_all_craft_stations()
 			
-	if Input.is_action_just_released(toggle_craft_panel_input):
+	if Input.is_action_just_pressed(toggle_craft_panel_input):
 		if crafter.is_open_main_craft_station():
 			crafter.close_main_craft_station()
 			crafter.close_all_craft_stations()
