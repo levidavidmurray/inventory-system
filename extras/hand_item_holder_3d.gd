@@ -17,15 +17,15 @@ var last_item: InventoryItem = null
 var objects_per_id: Dictionary
 
 
-func _ready():
+func activate():
 	hotbar.on_change_selection.connect(_on_change_selection.bind())
 	_on_change_selection(hotbar.selection_index)
-	print("[%s] hand item holder: %s" % [multiplayer.get_unique_id(), get_multiplayer_authority()])
 
 
 func _on_change_selection(new_index: int):
 	_clear_last_selection()
 	if not hotbar.has_valid_item_id():
+		interactor.actual_hand_object = null
 		return
 	var item = hotbar.get_selected_item()
 	var hand_item_scene = null
