@@ -141,7 +141,7 @@ func add_to_inventory_rpc(object_path: NodePath, item_id: int, amount := 1, drop
 	var inventory = object as Inventory
 	if inventory == null:
 		return
-	super.add_to_inventory(inventory, item, amount, drop_excess)
+	super.add_to_inventory(item, amount, inventory, drop_excess)
 
 
 @rpc("any_peer")

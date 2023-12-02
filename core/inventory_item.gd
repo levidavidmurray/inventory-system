@@ -11,7 +11,7 @@ class_name InventoryItem
 ## [codeblock]
 ## 	extends InventoryItem
 ## 	class_name FoodItem
-## 	
+##
 ## 	@export var satisfies_hunger = 12
 ## [/codeblock]
 
@@ -28,27 +28,27 @@ class_name InventoryItem
 			return 1
 
 ## Name of item
-@export var name : String
+@export var name: String
 
 ## Item icon in texture2D, displayed by [SlotUI]
-@export var icon : Texture2D
+@export var icon: Texture2D
 
 ## Item weight in float
-@export var weight : float
+@export var weight: float
 
-@export var durability : int
+@export var durability: int
 
 ## Item custom properties
-@export var properties : Dictionary
+@export var properties: Dictionary
 
 ## Item Categories (Use Bit Flags)
-@export var categories : Array[ItemCategory]
+@export var categories: Array[ItemCategory]
 
 ## Id represents none item (Used in networked scripts)
 const NONE = -1
 
 
-func contains_category(category : ItemCategory) -> bool:
+func contains_category(category: ItemCategory) -> bool:
 	for c in categories:
 		if c == category:
 			return true
