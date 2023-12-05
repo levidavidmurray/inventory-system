@@ -6,7 +6,6 @@ signal hand_item_changed(item: HandItem)
 @export_node_path("Node3D") var default_hand_item_object_path = NodePath("DefaultHandItem")
 @export_node_path("Hotbar") var hotbar_path = NodePath("../../CharacterInventorySystem/Hotbar")
 
-@onready var default_hand_item_object := get_node(default_hand_item_object_path)
 @onready var hotbar: Hotbar = get_node(hotbar_path)
 
 @export_node_path("InventoryInteractor")
@@ -34,7 +33,6 @@ func _on_change_selection(new_index: int):
 		hand_item_scene = load(path)
 	last_item = item
 	if hand_item_scene == null:
-		default_hand_item_object.visible = true
 		interactor.actual_hand_object = null
 		return
 	if objects_per_id.has(item):
@@ -49,7 +47,6 @@ func _on_change_selection(new_index: int):
 
 
 func _clear_last_selection():
-	default_hand_item_object.visible = false
 	if last_item == null:
 		return
 	if objects_per_id.has(last_item):
