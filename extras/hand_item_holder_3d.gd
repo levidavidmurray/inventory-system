@@ -18,7 +18,7 @@ var objects_per_id: Dictionary
 
 
 func activate():
-	hotbar.on_change_selection.connect(_on_change_selection.bind())
+	hotbar.slot_changed.connect(_on_change_selection.bind())
 	_on_change_selection(hotbar.selection_index)
 
 
