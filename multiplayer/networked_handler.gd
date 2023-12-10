@@ -35,6 +35,13 @@ func pick_to_inventory(dropped_item, inventory := self.inventories[0]):
 		pick_to_inventory_rpc(dropped_item.get_path(), inventory.get_path())
 
 
+func add_to_inventory(item: InventoryItem, amount: int = 1, inventory: Inventory = inventories[0], drop_excess: bool = false):
+	if not multiplayer.is_server():
+		add_to_inventory_rpc.rpc_id(1, item.id, amount, inventory.get_path(), drop_excess)
+	else:
+		add_to_inventory_rpc(item.id, amount, inventory.get_path(), drop_excess)
+
+
 func drop_from_inventory(slot_index: int, amount := 1, inventory := self.inventories[0]):
 	if not multiplayer.is_server():
 		drop_from_inventory_rpc.rpc_id(1, slot_index, amount, inventory.get_path())
@@ -129,16 +136,20 @@ func drop_rpc(item_id: int, amount: int):
 
 
 @rpc("any_peer")
-func add_to_inventory_rpc(object_path: NodePath, item_id: int, amount := 1, drop_excess := false):
+func add_to_inventory_rpc(item_id: int, amount := 1, inventory_path = null, drop_excess := false):
 	if not multiplayer.is_server():
 		return
 	var item = get_item_from_id(item_id)
 	if item == null:
 		return
-	var object = get_node(object_path)
-	if object == null:
-		return
-	var inventory = object as Inventory
+	var inventory: Inventory
+	if inventory_path == null:
+		inventory = inventories[0]
+	else:
+		var object = get_node(inventory_path)
+		if object == null:
+			return
+		inventory = object as Inventory
 	if inventory == null:
 		return
 	super.add_to_inventory(item, amount, inventory, drop_excess)
