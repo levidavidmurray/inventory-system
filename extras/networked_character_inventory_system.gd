@@ -1,6 +1,7 @@
 class_name NetworkedCharacterInventorySystem
 extends CharacterInventorySystem
 
+
 func _ready():
 	inventory_handler.picked.connect(_on_inventory_handler_picked.bind())
 	inventory_handler.dropped.connect(_on_inventory_handler_dropped.bind())
@@ -11,7 +12,7 @@ func _ready():
 		InventorySystem.setup_hotbar(hotbar)
 		InventorySystem.setup_crafter(crafter)
 		InventorySystem.setup_interactor(interactor)
-		
+
 		# Setup for enabled/disabled mouse 🖱️😀
 		inventory_handler.opened.connect(_update_opened_inventories.bind())
 		inventory_handler.closed.connect(_update_opened_inventories.bind())
@@ -20,7 +21,7 @@ func _ready():
 		_update_opened_inventories(inventory_handler.inventories[0])
 
 
-func _input(event : InputEvent):
+func _input(event: InputEvent):
 	if Engine.is_editor_hint():
 		return
 	if is_multiplayer_authority():
@@ -28,10 +29,14 @@ func _input(event : InputEvent):
 		inventory_inputs()
 
 
-func _physics_process(_delta : float):
+func _physics_process(_delta: float):
 	if Engine.is_editor_hint():
 		return
 	if not can_interact:
 		return
 	if is_multiplayer_authority():
 		interactor.try_interact()
+
+
+func _exit_tree():
+	InventorySystem.reset()
