@@ -82,40 +82,23 @@ offset_top = -90.0
 offset_right = 280.0
 offset_bottom = 6.0
 
-[node name="HotbarUI" type="Control" parent="." node_paths=PackedStringArray("slots_container")]
+[node name="HotbarUI" type="CenterContainer" parent="." node_paths=PackedStringArray("slots_container")]
 texture_filter = 1
-custom_minimum_size = Vector2(234, 78)
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -213.0
-offset_top = -78.0
-offset_right = 213.0
+offset_top = -67.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("7_e17fd")
 slot_ui_scene = ExtResource("4_5h6ud")
-slots_container = NodePath("Control/UI Inventory")
+slots_container = NodePath("UI Inventory")
 
-[node name="Control" type="Control" parent="HotbarUI"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="UI Inventory" type="GridContainer" parent="HotbarUI/Control"]
+[node name="UI Inventory" type="GridContainer" parent="HotbarUI"]
 layout_mode = 2
-offset_left = 4.0
-offset_top = 20.0
-offset_right = 4.0
-offset_bottom = 20.0
-theme_override_constants/h_separation = 0
-theme_override_constants/v_separation = 0
+theme_override_constants/h_separation = 4
 columns = 8
 
 [node name="PlayerCraftStationUI" parent="." instance=ExtResource("10_qjsje")]
